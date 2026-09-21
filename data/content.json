@@ -1,0 +1,47 @@
+{
+  "profile": {
+    "name": "Mason Rhine",
+    "headline": "Mason's About Me",
+    "shortBio": "I enjoy gaming, sports, anime, and music. I reached Champion rank in Tom Clancy's Rainbow Six Siege, and I listen to artists like d4vd and The Kid LAROI.",
+    "longBio": "I enjoy games like Blox Fruits and Tom Clancy's Rainbow Six Siege, where I reached Champion rank. I also like sports, especially boxing, football, and basketball. Anime is another interest of mine, including Ippo, Naruto, and One Piece. I also enjoy music from artists like d4vd and The Kid LAROI.",
+    "interests": ["Gaming", "Boxing", "Football", "Basketball", "Anime", "Music"],
+    "highlights": ["Champion rank in Rainbow Six Siege", "Music: d4vd and The Kid LAROI"],
+    "email": "[Add your email address]",
+    "location": "[Optional public location]",
+    "socials": [
+      { "label": "Instagram", "url": "[Add Instagram link]" },
+      { "label": "YouTube", "url": "[Add YouTube link]" },
+      { "label": "GitHub", "url": "[Add GitHub link]" }
+    ]
+  },
+  "media": [
+    { "id": "media-1", "title": "Boxing", "type": "Image", "description": "A boxing image added to the Media page.", "status": "Added", "src": "/media/media-01.jpg", "alt": "A boxer celebrating after a match", "sourceUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUaPiTL6PYxbs3oZX00HxmvizUxIoePxXHe8ajeBb7BA&s" },
+    { "id": "media-2", "title": "Ippo", "type": "Anime", "description": "A boxing scene from Ippo.", "status": "Added", "src": "/media/media-02.jpg", "alt": "An animated boxing scene from Ippo", "sourceUrl": "https://m.media-amazon.com/images/M/MV5BZDcyNzkzODYtOTQ4MS00YzIyLTlhN2QtYWVkMmQzZTU3MWE3XkEyXkFqcGc@._V1_.jpg" },
+    { "id": "media-3", "title": "Naruto — Baryon Mode", "type": "Anime", "description": "Naruto shown in Baryon Mode.", "status": "Added", "src": "/media/media-03.png", "alt": "Naruto in Baryon Mode", "sourceUrl": "https://static0.srcdn.com/wordpress/wp-content/uploads/2026/04/naruto-most-powerful-form-baryon.png?w=1600&h=1200&fit=crop" },
+    { "id": "media-4", "title": "Media placeholder 04", "type": "Project", "description": "Add another original project, screenshot, or document here.", "status": "Needs your file" }
+  ],
+  "future": {
+    "heading": "[Add your Future page heading]",
+    "intro": "Lorem ipsum dolor sit amet. Replace this with your future goals, plans, interests, or career ideas.",
+    "goals": [
+      { "title": "Short-term goal", "copy": "Lorem ipsum placeholder. Add what you want to accomplish soon." },
+      { "title": "Long-term goal", "copy": "Lorem ipsum placeholder. Add what you hope to work toward later." }
+    ]
+  },
+  "choicePages": [
+    {
+      "number": 1,
+      "heading": "Gaming and anime",
+      "topic": "Gaming & Anime",
+      "intro": "I enjoy games like Blox Fruits and Tom Clancy's Rainbow Six Siege, along with anime such as Ippo, Naruto, and One Piece.",
+      "sections": ["Blox Fruits", "Tom Clancy's Rainbow Six Siege"]
+    },
+    {
+      "number": 2,
+      "heading": "Sports I enjoy",
+      "topic": "Boxing, Football & Basketball",
+      "intro": "Sports are another important interest of mine. I enjoy boxing, football, and basketball.",
+      "sections": ["Boxing", "Football and Basketball"]
+    }
+  ]
+}
