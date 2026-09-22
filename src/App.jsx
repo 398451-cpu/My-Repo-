@@ -24,11 +24,11 @@ function Layout({ children }) {
   const location = useLocation();
   useEffect(() => setOpen(false), [location.pathname]);
   return (
-    <div className="site-shell">
+    <div className={`site-shell ${location.pathname === "/media" ? "media-shell" : ""}`.trim()}>
       <div className="grain" aria-hidden="true" />
       <header className="site-header">
         <NavLink className="wordmark" to="/" aria-label="Mason Rhine home">MR<span>.</span></NavLink>
-        <button id="menu-toggle-btn" className="menu-toggle" type="button" onClick={() => setOpen((value) => !value)} aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open}>
+        <button className="menu-toggle" type="button" onClick={() => setOpen((value) => !value)} aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open}>
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
         <nav className={`main-nav ${open ? "is-open" : ""}`}>
@@ -37,6 +37,7 @@ function Layout({ children }) {
         </nav>
       </header>
       <main>{children}</main>
+      <AlbumPlayer />
       <footer className="site-footer">
         <span>MR. / Personal website project</span>
         <span>© 2026 Mason Rhine</span>
@@ -49,18 +50,48 @@ function PlaceholderMedia({ label = "YOUR MEDIA HERE", type = "Placeholder" }) {
   return <div className="media-placeholder" role="img" aria-label={`${type} placeholder`}><span>{type}</span><strong>{label}</strong><small>Replace with your original file</small></div>;
 }
 
-function MediaImage({ src, alt, label, type }) {
+function MediaImage({ src, alt, label, type, className = "" }) {
   if (!src) return <PlaceholderMedia label={label} type={type} />;
-  return <div className="media-placeholder media-image"><img src={src} alt={alt || label} /><div className="media-image-label"><span>{type}</span><strong>{label}</strong></div></div>;
+  return <div className={`media-placeholder media-image ${className}`.trim()}><img src={src} alt={alt || label} /><div className="media-image-label"><span>{type}</span><strong>{label}</strong></div></div>;
+}
+
+function AlbumPlayer() {
+  return (
+    <aside className="album-player" aria-label="The First Time album player">
+      <div className="album-player-heading">
+        <p className="eyebrow">Soundtrack</p>
+        <strong>The First Time</strong>
+        <span>The Kid LAROI</span>
+      </div>
+      <iframe
+        title="The First Time by The Kid LAROI on Spotify"
+        src="https://open.spotify.com/embed/album/63IolVUykZCHMlu2zu9jHS?utm_source=generator&theme=0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+      />
+    </aside>
+  );
 }
 
 function PageIntro({ label, title, copy }) {
   return <div className="page-intro section-pad"><p className="eyebrow">{label}</p><h1>{title}</h1>{copy && <p className="page-copy">{copy}</p>}</div>;
 }
 
+function ChoiceVideo({ src, title }) {
+  if (!src) return <PlaceholderMedia type="Choice page" label="TOPIC IMAGE" />;
+  return <div className="choice-video-wrap"><video className="choice-video" controls playsInline preload="metadata" aria-label={title}><source src={src} type="video/mp4" /></video><span className="choice-video-label">{title}</span></div>;
+}
+
+function ChoiceVideos({ page, number }) {
+  const videos = page?.videos || (page?.videoSrc ? [{ src: page.videoSrc, title: page.videoTitle || `Choice page 0${number} video` }] : []);
+  if (videos.length === 0) return <ChoiceVideo title={`Choice page 0${number} video`} />;
+  return <div className="choice-videos">{videos.map((video) => <ChoiceVideo key={video.src} src={video.src} title={video.title} />)}</div>;
+}
+
 function Home() {
   const content = useContent();
   const profile = content?.profile;
+  const socialLinks = (profile?.socials || []).filter((social) => social.url?.startsWith("http"));
   return (
     <>
       <section className="hero section-pad">
@@ -68,13 +99,18 @@ function Home() {
           <p className="eyebrow">About me / 2026</p>
           <h1>{profile?.headline || "[Add your homepage headline]"}</h1>
           <p className="hero-intro">{profile?.shortBio || "Lorem ipsum placeholder for your introduction."}</p>
-          <NavLink id="explore-work-link" className="button-link" to="/media">Explore my work <ArrowUpRight size={16} /></NavLink>
+          {socialLinks.length > 0 && <div className="social-links" aria-label="Social links">{socialLinks.map((social) => <a key={social.label} href={social.url} target="_blank" rel="noreferrer">{social.label} <ArrowUpRight size={13} /></a>)}</div>}
+          <NavLink className="button-link" to="/media">Explore my work <ArrowUpRight size={16} /></NavLink>
         </div>
-        <PlaceholderMedia label="PROFILE PHOTO" type="Home page" />
+          <MediaImage src={profile?.profileImage} alt={profile?.profileImageAlt} label="PROFILE PHOTO" type="Home page" className="profile-photo" />
       </section>
       <section className="split-section section-pad">
         <div><p className="eyebrow">A little about me</p><h2>My story<br /><em>starts here.</em></h2></div>
-        <div className="content-column"><p>{profile?.longBio || "Lorem ipsum placeholder for your longer biography."}</p><div className="interest-tags">{(profile?.interests || []).map((interest) => <span key={interest}>{interest}</span>)}</div><div className="profile-highlights">{(profile?.highlights || []).map((highlight) => <span key={highlight}>{highlight}</span>)}</div><NavLink className="text-link" to="/future">See my future plans <ArrowUpRight size={16} /></NavLink></div>
+        <div className="content-column"><p>{profile?.longBio || "Lorem ipsum placeholder for your longer biography."}</p>{profile?.bioVerse && <blockquote className="bio-verse"><p>“{profile.bioVerse.text}”</p><cite>{profile.bioVerse.reference}</cite></blockquote>}<div className="interest-tags">{(profile?.interests || []).map((interest) => <span key={interest}>{interest}</span>)}</div><div className="profile-highlights">{(profile?.highlights || []).map((highlight) => <span key={highlight}>{highlight}</span>)}</div><NavLink className="text-link" to="/future">See my future plans <ArrowUpRight size={16} /></NavLink></div>
+      </section>
+      <section className="home-photo-section section-pad">
+        <div className="home-photo-heading"><p className="eyebrow">A moment from my life</p><h2>More<br /><em>of me.</em></h2></div>
+        <MediaImage src={profile?.homeImage} alt={profile?.homeImageAlt} label="PERSONAL PHOTO" type="Homepage" className="home-photo" />
       </section>
       <section className="color-band section-pad">
         <p className="eyebrow">More to explore</p>
@@ -92,12 +128,12 @@ function Media() {
   const content = useContent();
   const items = content?.media || [];
   return (
-    <>
+    <div className="media-page">
       <PageIntro label="Phase 02 / Gallery" title={<>My<br /><em>media.</em></>} copy="This gallery is ready for your original images, videos, audio, screenshots, and projects." />
       <section className="media-grid section-pad">
         {items.map((item) => <article className="media-card" key={item.id}><MediaImage src={item.src} alt={item.alt} type={item.type} label={item.title.toUpperCase()} /><div className="media-card-copy"><h2>{item.title}</h2><p>{item.description}</p><span>{item.status}</span>{item.sourceUrl && <a className="media-source" href={item.sourceUrl} target="_blank" rel="noreferrer">View source <ArrowUpRight size={13} /></a>}</div></article>)}
       </section>
-    </>
+    </div>
   );
 }
 
@@ -110,7 +146,7 @@ function Future() {
       <section className="goal-list section-pad">
         {(future?.goals || []).map((goal) => <article className="goal-card" key={goal.title}><span>Goal</span><h2>{goal.title}</h2><p>{goal.copy}</p></article>)}
       </section>
-      <section className="quote-band section-pad"><p>“[Add a sentence about what you hope to build, learn, or become.]”</p></section>
+      <section className="quote-band section-pad"><p>“{future?.verse?.text || "[Add a verse or quote here.]"}”</p>{future?.verse?.reference && <span className="quote-reference">{future.verse.reference}</span>}</section>
     </>
   );
 }
@@ -121,10 +157,14 @@ function ChoicePage({ number }) {
   return (
     <>
       <PageIntro label={`Phase 0${number + 3} / Choice page`} title={<>Choice<br /><em>page 0{number}.</em></>} copy={page?.intro} />
-      <section className="choice-content section-pad">
+       <section className="choice-content section-pad">
         <div className="choice-topic"><span>Selected topic</span><h2>{page?.topic || "[Topic not selected]"}</h2></div>
-        <PlaceholderMedia type={`Choice page 0${number}`} label="TOPIC IMAGE" />
-        <div className="choice-sections">{(page?.sections || []).map((section) => <article key={section}><p className="eyebrow">Section</p><h2>{section}</h2><p>Lorem ipsum placeholder. Add your writing, facts, opinions, or instructions here.</p></article>)}</div>
+          <ChoiceVideos page={page} number={number} />
+         <div className="choice-sections">{(page?.sections || []).map((section) => {
+           const title = typeof section === "string" ? section : section.title;
+           const copy = typeof section === "string" ? "Lorem ipsum placeholder. Add your writing, facts, opinions, or instructions here." : section.copy;
+           return <article key={title}><p className="eyebrow">Section</p><h2>{title}</h2><p>{copy}</p></article>;
+         })}</div>
       </section>
     </>
   );
@@ -143,12 +183,12 @@ function Contact() {
   return (
     <>
       <PageIntro label="Contact" title={<>Let&apos;s<br /><em>connect.</em></>} copy="Use this form to send a message. The fields can be adjusted to match your assignment requirements." />
-      <form id="contact-form" className="contact-form section-pad" onSubmit={submit}>
-        <label>Name<input id="contact-name" required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>
-        <label>Email<input id="contact-email" required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label>
-        <label>Subject<input id="contact-subject" value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })} placeholder="What is this about?" /></label>
-        <label>Message<textarea id="contact-message" required rows="6" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder="Write your message here..." /></label>
-        <button id="contact-submit-btn" className="button-link" type="submit" disabled={state === "sending"}>{state === "sending" ? "Saving..." : "Send message"} <Send size={16} /></button>
+      <form className="contact-form section-pad" onSubmit={submit}>
+        <label>Name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>
+        <label>Email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label>
+        <label>Subject<input value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })} placeholder="What is this about?" /></label>
+        <label>Message<textarea required rows="6" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder="Write your message here..." /></label>
+        <button className="button-link" type="submit" disabled={state === "sending"}>{state === "sending" ? "Saving..." : "Send message"} <Send size={16} /></button>
         {state === "success" && <p className="form-status success">Your message was saved.</p>}
         {state === "error" && <p className="form-status error">Something went wrong. Please try again.</p>}
       </form>
@@ -176,8 +216,8 @@ function Admin() {
   useEffect(() => { if (authed) loadDashboard(); }, [authed]);
   const updateMessage = async (id, status) => { await fetch(`/api/admin/messages/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) }); loadDashboard(); };
   const deleteMessage = async (id) => { await fetch(`/api/admin/messages/${id}`, { method: "DELETE" }); loadDashboard(); };
-  if (!authed) return <><PageIntro label="Phase 06 / Private area" title={<>Admin<br /><em>dashboard.</em></>} copy="This area is password protected for managing contact messages and viewing basic project statistics." /><form id="admin-login-form" className="admin-login section-pad" onSubmit={login}><label>Admin password<input id="admin-password-input" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Configured in Replit Secrets" /></label><button id="admin-login-btn" className="button-link" type="submit">Log in <ArrowUpRight size={16} /></button>{error && <p className="form-status error">{error}</p>}</form></>;
-  return <section className="admin-dashboard section-pad"><div className="admin-title"><div><p className="eyebrow">Phase 06 / Private area</p><h1>Admin<br /><em>dashboard.</em></h1></div><button id="admin-logout-btn" className="text-button" onClick={() => { setAuthed(false); fetch("/api/admin/logout", { method: "POST" }); }}>Log out</button></div><div className="stats-grid"><div><span>Total messages</span><strong>{stats?.totalMessages ?? 0}</strong></div><div><span>Unread</span><strong>{stats?.unreadMessages ?? 0}</strong></div><div><span>Media items</span><strong>{stats?.mediaItems ?? 0}</strong></div></div><div className="admin-section"><h2>Messages</h2>{messages.length === 0 ? <p className="muted">No messages yet.</p> : messages.map((message) => <article className="admin-message" key={message.id}><div><span>{message.status}</span><h3>{message.subject}</h3><p>{message.name} / {message.email}</p><p>{message.message}</p></div><div className="admin-actions"><button onClick={() => updateMessage(message.id, message.status === "read" ? "unread" : "read")}>{message.status === "read" ? "Mark unread" : "Mark read"}</button><button onClick={() => deleteMessage(message.id)}>Delete</button></div></article>)}</div></section>;
+  if (!authed) return <><PageIntro label="Phase 06 / Private area" title={<>Admin<br /><em>dashboard.</em></>} copy="This area is password protected for managing contact messages and viewing basic project statistics." /><form className="admin-login section-pad" onSubmit={login}><label>Admin password<input required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Configured in Replit Secrets" /></label><button className="button-link" type="submit">Log in <ArrowUpRight size={16} /></button>{error && <p className="form-status error">{error}</p>}</form></>;
+  return <section className="admin-dashboard section-pad"><div className="admin-title"><div><p className="eyebrow">Phase 06 / Private area</p><h1>Admin<br /><em>dashboard.</em></h1></div><button className="text-button" onClick={() => { setAuthed(false); fetch("/api/admin/logout", { method: "POST" }); }}>Log out</button></div><div className="stats-grid"><div><span>Total messages</span><strong>{stats?.totalMessages ?? 0}</strong></div><div><span>Unread</span><strong>{stats?.unreadMessages ?? 0}</strong></div><div><span>Media items</span><strong>{stats?.mediaItems ?? 0}</strong></div></div><div className="admin-section"><h2>Messages</h2>{messages.length === 0 ? <p className="muted">No messages yet.</p> : messages.map((message) => <article className="admin-message" key={message.id}><div><span>{message.status}</span><h3>{message.subject}</h3><p>{message.name} / {message.email}</p><p>{message.message}</p></div><div className="admin-actions"><button onClick={() => updateMessage(message.id, message.status === "read" ? "unread" : "read")}>{message.status === "read" ? "Mark unread" : "Mark read"}</button><button onClick={() => deleteMessage(message.id)}>Delete</button></div></article>)}</div></section>;
 }
 
 export default function App() {
