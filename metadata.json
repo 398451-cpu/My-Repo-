@@ -1,6 +1,6 @@
 {
-  "name": "My Repo",
-  "description": "Repository viewer and documentation app for 398451-cpu/My-Repo-.",
+  "name": "Mason Rhine — Creative Studio",
+  "description": "Mason Rhine is an independent creative studio building brands with a pulse.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

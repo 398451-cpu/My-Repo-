@@ -28,7 +28,7 @@ function Layout({ children }) {
       <div className="grain" aria-hidden="true" />
       <header className="site-header">
         <NavLink className="wordmark" to="/" aria-label="Mason Rhine home">MR<span>.</span></NavLink>
-        <button className="menu-toggle" type="button" onClick={() => setOpen((value) => !value)} aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open}>
+        <button id="menu-toggle-btn" className="menu-toggle" type="button" onClick={() => setOpen((value) => !value)} aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open}>
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
         <nav className={`main-nav ${open ? "is-open" : ""}`}>
@@ -68,7 +68,7 @@ function Home() {
           <p className="eyebrow">About me / 2026</p>
           <h1>{profile?.headline || "[Add your homepage headline]"}</h1>
           <p className="hero-intro">{profile?.shortBio || "Lorem ipsum placeholder for your introduction."}</p>
-          <NavLink className="button-link" to="/media">Explore my work <ArrowUpRight size={16} /></NavLink>
+          <NavLink id="explore-work-link" className="button-link" to="/media">Explore my work <ArrowUpRight size={16} /></NavLink>
         </div>
         <PlaceholderMedia label="PROFILE PHOTO" type="Home page" />
       </section>
@@ -143,12 +143,12 @@ function Contact() {
   return (
     <>
       <PageIntro label="Contact" title={<>Let&apos;s<br /><em>connect.</em></>} copy="Use this form to send a message. The fields can be adjusted to match your assignment requirements." />
-      <form className="contact-form section-pad" onSubmit={submit}>
-        <label>Name<input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>
-        <label>Email<input required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label>
-        <label>Subject<input value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })} placeholder="What is this about?" /></label>
-        <label>Message<textarea required rows="6" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder="Write your message here..." /></label>
-        <button className="button-link" type="submit" disabled={state === "sending"}>{state === "sending" ? "Saving..." : "Send message"} <Send size={16} /></button>
+      <form id="contact-form" className="contact-form section-pad" onSubmit={submit}>
+        <label>Name<input id="contact-name" required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label>
+        <label>Email<input id="contact-email" required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label>
+        <label>Subject<input id="contact-subject" value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })} placeholder="What is this about?" /></label>
+        <label>Message<textarea id="contact-message" required rows="6" value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder="Write your message here..." /></label>
+        <button id="contact-submit-btn" className="button-link" type="submit" disabled={state === "sending"}>{state === "sending" ? "Saving..." : "Send message"} <Send size={16} /></button>
         {state === "success" && <p className="form-status success">Your message was saved.</p>}
         {state === "error" && <p className="form-status error">Something went wrong. Please try again.</p>}
       </form>
@@ -176,8 +176,8 @@ function Admin() {
   useEffect(() => { if (authed) loadDashboard(); }, [authed]);
   const updateMessage = async (id, status) => { await fetch(`/api/admin/messages/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) }); loadDashboard(); };
   const deleteMessage = async (id) => { await fetch(`/api/admin/messages/${id}`, { method: "DELETE" }); loadDashboard(); };
-  if (!authed) return <><PageIntro label="Phase 06 / Private area" title={<>Admin<br /><em>dashboard.</em></>} copy="This area is password protected for managing contact messages and viewing basic project statistics." /><form className="admin-login section-pad" onSubmit={login}><label>Admin password<input required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Configured in Replit Secrets" /></label><button className="button-link" type="submit">Log in <ArrowUpRight size={16} /></button>{error && <p className="form-status error">{error}</p>}</form></>;
-  return <section className="admin-dashboard section-pad"><div className="admin-title"><div><p className="eyebrow">Phase 06 / Private area</p><h1>Admin<br /><em>dashboard.</em></h1></div><button className="text-button" onClick={() => { setAuthed(false); fetch("/api/admin/logout", { method: "POST" }); }}>Log out</button></div><div className="stats-grid"><div><span>Total messages</span><strong>{stats?.totalMessages ?? 0}</strong></div><div><span>Unread</span><strong>{stats?.unreadMessages ?? 0}</strong></div><div><span>Media items</span><strong>{stats?.mediaItems ?? 0}</strong></div></div><div className="admin-section"><h2>Messages</h2>{messages.length === 0 ? <p className="muted">No messages yet.</p> : messages.map((message) => <article className="admin-message" key={message.id}><div><span>{message.status}</span><h3>{message.subject}</h3><p>{message.name} / {message.email}</p><p>{message.message}</p></div><div className="admin-actions"><button onClick={() => updateMessage(message.id, message.status === "read" ? "unread" : "read")}>{message.status === "read" ? "Mark unread" : "Mark read"}</button><button onClick={() => deleteMessage(message.id)}>Delete</button></div></article>)}</div></section>;
+  if (!authed) return <><PageIntro label="Phase 06 / Private area" title={<>Admin<br /><em>dashboard.</em></>} copy="This area is password protected for managing contact messages and viewing basic project statistics." /><form id="admin-login-form" className="admin-login section-pad" onSubmit={login}><label>Admin password<input id="admin-password-input" required type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Configured in Replit Secrets" /></label><button id="admin-login-btn" className="button-link" type="submit">Log in <ArrowUpRight size={16} /></button>{error && <p className="form-status error">{error}</p>}</form></>;
+  return <section className="admin-dashboard section-pad"><div className="admin-title"><div><p className="eyebrow">Phase 06 / Private area</p><h1>Admin<br /><em>dashboard.</em></h1></div><button id="admin-logout-btn" className="text-button" onClick={() => { setAuthed(false); fetch("/api/admin/logout", { method: "POST" }); }}>Log out</button></div><div className="stats-grid"><div><span>Total messages</span><strong>{stats?.totalMessages ?? 0}</strong></div><div><span>Unread</span><strong>{stats?.unreadMessages ?? 0}</strong></div><div><span>Media items</span><strong>{stats?.mediaItems ?? 0}</strong></div></div><div className="admin-section"><h2>Messages</h2>{messages.length === 0 ? <p className="muted">No messages yet.</p> : messages.map((message) => <article className="admin-message" key={message.id}><div><span>{message.status}</span><h3>{message.subject}</h3><p>{message.name} / {message.email}</p><p>{message.message}</p></div><div className="admin-actions"><button onClick={() => updateMessage(message.id, message.status === "read" ? "unread" : "read")}>{message.status === "read" ? "Mark unread" : "Mark read"}</button><button onClick={() => deleteMessage(message.id)}>Delete</button></div></article>)}</div></section>;
 }
 
 export default function App() {

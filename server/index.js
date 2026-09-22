@@ -10,7 +10,7 @@ const rootDir = path.resolve(__dirname, "..");
 const dataDir = path.join(rootDir, "data");
 const messagesFile = path.join(dataDir, "messages.json");
 const contentFile = path.join(dataDir, "content.json");
-const port = Number(process.env.PORT || 5000);
+const port = 3000;
 const adminPassword = process.env.ADMIN_PASSWORD || "change-me-before-publishing";
 
 async function readJson(file, fallback) {
@@ -113,11 +113,11 @@ app.get("/api/admin/stats", async (req, res) => {
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(rootDir, "dist")));
-  app.get("*", (_req, res) => res.sendFile(path.join(rootDir, "dist", "index.html")));
+  app.get("{*path}", (_req, res) => res.sendFile(path.join(rootDir, "dist", "index.html")));
 } else {
   const vite = await createViteServer({
     root: rootDir,
-    server: { middlewareMode: true, host: "0.0.0.0" },
+    server: { middlewareMode: true, host: "0.0.0.0", hmr: false },
     appType: "spa"
   });
   app.use(vite.middlewares);
