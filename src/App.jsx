@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { ArrowUpRight, Menu, Send, X } from "lucide-react";
 
@@ -6,10 +6,54 @@ const navItems = [
   { to: "/", label: "Home", end: true },
   { to: "/media", label: "Media" },
   { to: "/future", label: "Future" },
-  { to: "/choice-1", label: "Choice 01" },
-  { to: "/choice-2", label: "Choice 02" },
+  { to: "/stocks", label: "Stock Game" },
+  { to: "/choice-1", label: "Rainbow Six Siege" },
+  { to: "/choice-2", label: "Boxing" },
   { to: "/contact", label: "Contact" }
 ];
+
+const STOCK_GAME_KEY = "mason-rhine-stock-game";
+const STARTING_CASH = 10000;
+const STOCKS = [
+  { symbol: "R6S", name: "Siege Systems", sector: "Gaming", price: 86, volatility: 0.08 },
+  { symbol: "LARO", name: "Laroi Music", sector: "Entertainment", price: 52, volatility: 0.12 },
+  { symbol: "BOX", name: "Roundhouse Athletics", sector: "Sports", price: 34, volatility: 0.1 },
+  { symbol: "AUTO", name: "Velocity Motors", sector: "Automotive", price: 118, volatility: 0.06 }
+];
+
+function createInitialStockGame() {
+  return {
+    cash: STARTING_CASH,
+    day: 1,
+    holdings: {},
+    prices: Object.fromEntries(STOCKS.map((stock) => [stock.symbol, stock.price])),
+    changes: Object.fromEntries(STOCKS.map((stock) => [stock.symbol, 0])),
+    activity: [{ day: 1, text: "The practice market opened with $10,000 in fake cash." }]
+  };
+}
+
+function loadStockGame() {
+  const freshGame = createInitialStockGame();
+  if (typeof window === "undefined") return freshGame;
+  try {
+    const savedGame = JSON.parse(window.localStorage.getItem(STOCK_GAME_KEY));
+    if (!savedGame || typeof savedGame !== "object") return freshGame;
+    return {
+      ...freshGame,
+      ...savedGame,
+      holdings: { ...freshGame.holdings, ...(savedGame.holdings || {}) },
+      prices: { ...freshGame.prices, ...(savedGame.prices || {}) },
+      changes: { ...freshGame.changes, ...(savedGame.changes || {}) },
+      activity: Array.isArray(savedGame.activity) ? savedGame.activity.slice(0, 8) : freshGame.activity
+    };
+  } catch {
+    return freshGame;
+  }
+}
+
+function formatMoney(value) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(value);
+}
 
 function useContent() {
   const [content, setContent] = useState(null);
@@ -50,9 +94,10 @@ function PlaceholderMedia({ label = "YOUR MEDIA HERE", type = "Placeholder" }) {
   return <div className="media-placeholder" role="img" aria-label={`${type} placeholder`}><span>{type}</span><strong>{label}</strong><small>Replace with your original file</small></div>;
 }
 
-function MediaImage({ src, alt, label, type, className = "" }) {
+function MediaImage({ src, alt, label, type, className = "", linkUrl }) {
   if (!src) return <PlaceholderMedia label={label} type={type} />;
-  return <div className={`media-placeholder media-image ${className}`.trim()}><img src={src} alt={alt || label} /><div className="media-image-label"><span>{type}</span><strong>{label}</strong></div></div>;
+  const image = <div className={`media-placeholder media-image ${className}`.trim()}><img src={src} alt={alt || label} /><div className="media-image-label"><span>{type}</span><strong>{label}</strong></div></div>;
+  return linkUrl ? <a className="media-image-link" href={linkUrl} target="_blank" rel="noreferrer" aria-label={`Open ${label}`}>{image}</a> : image;
 }
 
 function AlbumPlayer() {
@@ -105,7 +150,7 @@ function Home() {
           <MediaImage src={profile?.profileImage} alt={profile?.profileImageAlt} label="PROFILE PHOTO" type="Home page" className="profile-photo" />
       </section>
       <section className="split-section section-pad">
-        <div><p className="eyebrow">A little about me</p><h2>My story<br /><em>starts here.</em></h2></div>
+        <div><p className="eyebrow">A little about me</p><span className="bio-symbol" aria-hidden="true">{profile?.bioSymbol}</span><h2>My story<br /><em>starts here.</em></h2></div>
         <div className="content-column"><p>{profile?.longBio || "Lorem ipsum placeholder for your longer biography."}</p>{profile?.bioVerse && <blockquote className="bio-verse"><p>“{profile.bioVerse.text}”</p><cite>{profile.bioVerse.reference}</cite></blockquote>}<div className="interest-tags">{(profile?.interests || []).map((interest) => <span key={interest}>{interest}</span>)}</div><div className="profile-highlights">{(profile?.highlights || []).map((highlight) => <span key={highlight}>{highlight}</span>)}</div><NavLink className="text-link" to="/future">See my future plans <ArrowUpRight size={16} /></NavLink></div>
       </section>
       <section className="home-photo-section section-pad">
@@ -131,7 +176,7 @@ function Media() {
     <div className="media-page">
       <PageIntro label="Phase 02 / Gallery" title={<>My<br /><em>media.</em></>} copy="This gallery is ready for your original images, videos, audio, screenshots, and projects." />
       <section className="media-grid section-pad">
-        {items.map((item) => <article className="media-card" key={item.id}><MediaImage src={item.src} alt={item.alt} type={item.type} label={item.title.toUpperCase()} /><div className="media-card-copy"><h2>{item.title}</h2><p>{item.description}</p><span>{item.status}</span>{item.sourceUrl && <a className="media-source" href={item.sourceUrl} target="_blank" rel="noreferrer">View source <ArrowUpRight size={13} /></a>}</div></article>)}
+        {items.map((item) => <article className="media-card" key={item.id}><MediaImage src={item.src} alt={item.alt} type={item.type} label={item.title.toUpperCase()} linkUrl={item.linkUrl} /><div className="media-card-copy"><h2>{item.title}</h2><p>{item.description}</p><span>{item.status}</span>{item.sourceUrl && <a className="media-source" href={item.sourceUrl} target="_blank" rel="noreferrer">View source <ArrowUpRight size={13} /></a>}</div></article>)}
       </section>
     </div>
   );
@@ -144,9 +189,157 @@ function Future() {
     <>
       <PageIntro label="Phase 03 / Looking ahead" title={<>The<br /><em>future.</em></>} copy={future?.intro} />
       <section className="goal-list section-pad">
-        {(future?.goals || []).map((goal) => <article className="goal-card" key={goal.title}><span>Goal</span><h2>{goal.title}</h2><p>{goal.copy}</p></article>)}
+        {(future?.goals || []).map((goal) => <article className={`goal-card ${goal.image ? "has-image" : ""}`.trim()} key={goal.title}>{goal.image && <img className="goal-card-image" src={goal.image} alt={goal.imageAlt || goal.title} />}<span>Goal</span><h2>{goal.title}</h2><p>{goal.copy}</p></article>)}
       </section>
       <section className="quote-band section-pad"><p>“{future?.verse?.text || "[Add a verse or quote here.]"}”</p>{future?.verse?.reference && <span className="quote-reference">{future.verse.reference}</span>}</section>
+    </>
+  );
+}
+
+function StockGame() {
+  const [game, setGame] = useState(loadStockGame);
+  const [quantities, setQuantities] = useState({});
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  useEffect(() => {
+    window.localStorage.setItem(STOCK_GAME_KEY, JSON.stringify(game));
+  }, [game]);
+
+  const holdingsValue = useMemo(
+    () => STOCKS.reduce((total, stock) => total + (game.holdings[stock.symbol] || 0) * game.prices[stock.symbol], 0),
+    [game.holdings, game.prices]
+  );
+  const portfolioValue = game.cash + holdingsValue;
+  const profit = portfolioValue - STARTING_CASH;
+
+  const changeQuantity = (symbol, value) => {
+    setQuantities((current) => ({ ...current, [symbol]: value }));
+  };
+
+  const trade = (stock, direction) => {
+    const quantity = Math.floor(Number(quantities[stock.symbol]));
+    if (!Number.isFinite(quantity) || quantity < 1) {
+      setMessage({ type: "error", text: "Enter at least 1 share before trading." });
+      return;
+    }
+    const total = quantity * game.prices[stock.symbol];
+    const owned = game.holdings[stock.symbol] || 0;
+    if (direction === "buy" && total > game.cash) {
+      setMessage({ type: "error", text: "That trade costs more than your available fake cash." });
+      return;
+    }
+    if (direction === "sell" && quantity > owned) {
+      setMessage({ type: "error", text: `You only own ${owned} ${stock.symbol} share${owned === 1 ? "" : "s"}.` });
+      return;
+    }
+    setGame((current) => ({
+      ...current,
+      cash: current.cash + (direction === "buy" ? -total : total),
+      holdings: {
+        ...current.holdings,
+        [stock.symbol]: owned + (direction === "buy" ? quantity : -quantity)
+      },
+      activity: [
+        { day: current.day, text: `${direction === "buy" ? "Bought" : "Sold"} ${quantity} ${stock.symbol} share${quantity === 1 ? "" : "s"} at ${formatMoney(current.prices[stock.symbol])}.` },
+        ...current.activity
+      ].slice(0, 8)
+    }));
+    setQuantities((current) => ({ ...current, [stock.symbol]: "" }));
+    setMessage({ type: "success", text: `${direction === "buy" ? "Buy" : "Sell"} complete. Keep watching your risk and cash.` });
+  };
+
+  const advanceMarket = () => {
+    setGame((current) => {
+      const changes = {};
+      const prices = {};
+      STOCKS.forEach((stock) => {
+        const change = (Math.random() * 2 - 1) * stock.volatility;
+        changes[stock.symbol] = change;
+        prices[stock.symbol] = Math.max(1, current.prices[stock.symbol] * (1 + change));
+      });
+      return {
+        ...current,
+        day: current.day + 1,
+        prices,
+        changes,
+        activity: [{ day: current.day + 1, text: `Market day ${current.day + 1} opened. Prices moved — check before you trade.` }, ...current.activity].slice(0, 8)
+      };
+    });
+    setMessage({ type: "success", text: "A new market day started. Price changes are simulated for practice." });
+  };
+
+  const resetGame = () => {
+    setGame(createInitialStockGame());
+    setQuantities({});
+    setMessage({ type: "success", text: "Your practice portfolio was reset to $10,000." });
+  };
+
+  return (
+    <>
+      <PageIntro
+        label="Phase 07 / Practice investing"
+        title={<>Stock<br /><em>game.</em></>}
+        copy="Use fake money to buy and sell fake stocks, then learn how price changes, cash, and diversification affect a portfolio."
+      />
+      <section className="stock-game section-pad">
+        <div className="stock-game-header">
+          <div className="stock-stat">
+            <span>Portfolio value</span>
+            <strong>{formatMoney(portfolioValue)}</strong>
+            <small className={profit >= 0 ? "stock-positive" : "stock-negative"}>{profit >= 0 ? "+" : ""}{formatMoney(profit)} since start</small>
+          </div>
+          <div className="stock-stat">
+            <span>Available cash</span>
+            <strong>{formatMoney(game.cash)}</strong>
+            <small>Market day {game.day}</small>
+          </div>
+          <div className="stock-game-actions">
+            <button className="button-link" type="button" onClick={advanceMarket}>Advance market day <ArrowUpRight size={16} /></button>
+            <button className="text-button" type="button" onClick={resetGame}>Reset game</button>
+          </div>
+        </div>
+        {message.text && <p className={`stock-message ${message.type}`}>{message.text}</p>}
+        <div className="stock-game-grid">
+          <section className="stock-market-panel" aria-labelledby="market-heading">
+            <div className="stock-panel-heading">
+              <div><p className="eyebrow">Fake exchange</p><h2 id="market-heading">Choose your<br /><em>stocks.</em></h2></div>
+              <span>Prices update each market day</span>
+            </div>
+            <div className="stock-list">
+              {STOCKS.map((stock) => {
+                const change = game.changes[stock.symbol] || 0;
+                return (
+                  <article className="stock-row" key={stock.symbol}>
+                    <div className="stock-identity"><span className="stock-symbol">{stock.symbol}</span><div><h3>{stock.name}</h3><p>{stock.sector}</p></div></div>
+                    <div className="stock-quote"><strong>{formatMoney(game.prices[stock.symbol])}</strong><span className={change >= 0 ? "stock-positive" : "stock-negative"}>{change >= 0 ? "+" : ""}{(change * 100).toFixed(2)}%</span></div>
+                    <div className="stock-trade-controls">
+                      <label htmlFor={`quantity-${stock.symbol}`}>Shares<input id={`quantity-${stock.symbol}`} type="number" min="1" step="1" value={quantities[stock.symbol] || ""} onChange={(event) => changeQuantity(stock.symbol, event.target.value)} placeholder="0" /></label>
+                      <button type="button" onClick={() => trade(stock, "buy")}>Buy</button>
+                      <button type="button" onClick={() => trade(stock, "sell")}>Sell</button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+          <aside className="stock-portfolio-panel" aria-labelledby="portfolio-heading">
+            <div className="stock-panel-heading"><div><p className="eyebrow">Your position</p><h2 id="portfolio-heading">My<br /><em>portfolio.</em></h2></div></div>
+            <div className="stock-portfolio-summary"><span>Invested value</span><strong>{formatMoney(holdingsValue)}</strong></div>
+            <div className="stock-holdings">
+              {STOCKS.map((stock) => <div className="stock-holding" key={stock.symbol}><span>{stock.symbol}</span><strong>{game.holdings[stock.symbol] || 0} shares</strong><small>{formatMoney((game.holdings[stock.symbol] || 0) * game.prices[stock.symbol])}</small></div>)}
+            </div>
+            <div className="stock-activity"><p className="eyebrow">Activity</p>{game.activity.map((item, index) => <p key={`${item.day}-${index}`}><span>DAY {item.day}</span>{item.text}</p>)}</div>
+          </aside>
+        </div>
+      </section>
+      <section className="stock-lessons section-pad">
+        <div><p className="eyebrow">Learn while you play</p><h2>Practice<br /><em>the basics.</em></h2></div>
+        <div className="stock-lesson-list">
+          <article><span>01 / Diversification</span><h3>Do not put everything in one stock.</h3><p>Spreading fake money across different industries can reduce the impact of one company having a bad day.</p></article>
+          <article><span>02 / Volatility</span><h3>Price movement is part of the risk.</h3><p>More volatile stocks can move up or down faster. Bigger possible gains also mean bigger possible losses.</p></article>
+          <article><span>03 / Patience</span><h3>A single day does not tell the whole story.</h3><p>Use several market days to notice trends, and remember that this game is practice — not financial advice.</p></article>
+        </div>
+      </section>
     </>
   );
 }
@@ -221,5 +414,5 @@ function Admin() {
 }
 
 export default function App() {
-  return <Layout><Routes><Route path="/" element={<Home />} /><Route path="/media" element={<Media />} /><Route path="/future" element={<Future />} /><Route path="/choice-1" element={<ChoicePage number={1} />} /><Route path="/choice-2" element={<ChoicePage number={2} />} /><Route path="/contact" element={<Contact />} /><Route path="/admin" element={<Admin />} /></Routes></Layout>;
+  return <Layout><Routes><Route path="/" element={<Home />} /><Route path="/media" element={<Media />} /><Route path="/future" element={<Future />} /><Route path="/stocks" element={<StockGame />} /><Route path="/choice-1" element={<ChoicePage number={1} />} /><Route path="/choice-2" element={<ChoicePage number={2} />} /><Route path="/contact" element={<Contact />} /><Route path="/admin" element={<Admin />} /></Routes></Layout>;
 }

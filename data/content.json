@@ -6,14 +6,15 @@
     "profileImageAlt": "Mason Rhine standing outside in a burgundy shirt",
     "homeImage": "/media/home-photo.png",
     "homeImageAlt": "Mason Rhine standing outside at night",
-    "shortBio": "I enjoy gaming, sports, anime, and music. I reached Champion rank in Tom Clancy's Rainbow Six Siege, and I listen to artists like d4vd and The Kid LAROI.",
-    "longBio": "I enjoy games like Blox Fruits and Tom Clancy's Rainbow Six Siege, where I reached Champion rank. I also like sports, especially boxing, football, and basketball. Anime is another interest of mine, including Ippo, Naruto, and One Piece. I also enjoy music from artists like d4vd and The Kid LAROI.",
+    "bioSymbol": "✝",
+    "shortBio": "I enjoy gaming, sports, anime, and music. I reached Champion rank in Tom Clancy's Rainbow Six Siege, and I listen to artists like Lil Uzi Vert and The Kid LAROI.",
+    "longBio": "I enjoy games like Blox Fruits and Tom Clancy's Rainbow Six Siege, where I reached Champion rank. I also like sports, especially boxing, football, and basketball. Anime is another interest of mine, including Ippo, Naruto, and One Piece. I also enjoy music from artists like Lil Uzi Vert and The Kid LAROI.",
     "bioVerse": {
       "text": "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.",
       "reference": "Isaiah 41:10"
     },
     "interests": ["Gaming", "Boxing", "Football", "Basketball", "Anime", "Music"],
-    "highlights": ["Champion rank in Rainbow Six Siege", "Music: d4vd and The Kid LAROI"],
+    "highlights": ["Champion rank in Rainbow Six Siege", "Music: Lil Uzi Vert and The Kid LAROI"],
     "email": "[Add your email address]",
     "location": "[Optional public location]",
     "socials": [
@@ -28,14 +29,19 @@
     { "id": "media-2", "title": "Ippo", "type": "Anime", "description": "A boxing scene from Ippo.", "status": "Added", "src": "/media/media-02.jpg", "alt": "An animated boxing scene from Ippo", "sourceUrl": "https://m.media-amazon.com/images/M/MV5BZDcyNzkzODYtOTQ4MS00YzIyLTlhN2QtYWVkMmQzZTU3MWE3XkEyXkFqcGc@._V1_.jpg" },
     { "id": "media-3", "title": "Naruto — Baryon Mode", "type": "Anime", "description": "Naruto shown in Baryon Mode.", "status": "Added", "src": "/media/media-03.png", "alt": "Naruto in Baryon Mode", "sourceUrl": "https://static0.srcdn.com/wordpress/wp-content/uploads/2026/04/naruto-most-powerful-form-baryon.png?w=1600&h=1200&fit=crop" },
     { "id": "media-4", "title": "Image 04", "type": "Image", "description": "Another image added to the Media page.", "status": "Added", "src": "/media/media-04.jpg", "alt": "A newly added image on the Media page", "sourceUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBqrElL8EAYJiYkKoGEBsPE8YQPnsaAxj-Yv232Vag92q5e4mTmcArhms&s=10" },
-    { "id": "media-5", "title": "My friends", "type": "Personal photo", "description": "A photo with my friends.", "status": "Added", "src": "/media/my-friends.png", "alt": "Mason Rhine with friends indoors" }
+    { "id": "media-5", "title": "My friends", "type": "Personal photo", "description": "A photo with my friends.", "status": "Added", "src": "/media/my-friends.png", "alt": "Mason Rhine with friends indoors" },
+    { "id": "media-6", "title": "My favorite cartoon", "type": "Cartoon", "description": "A cartoon duo ready for action.", "status": "Added", "src": "/media/cartoon-duo.png", "alt": "Two colorful cartoon characters posing together" },
+    { "id": "media-7", "title": "My favorite Twitch streamer", "type": "Twitch streamer", "description": "A saved slot for my favorite Twitch streamer.", "status": "Added", "src": "/media/favorite-twitch-streamer.jpg", "alt": "A Rainbow Six Siege gaming scene", "sourceUrl": "https://gdm-universal-media.b-cdn.net/siege/66538764-54910149298_04f808e9f4_c.jpg?width=1600&height=840" },
+    { "id": "media-8", "title": "Me at The Kid LAROI concert", "type": "Concert", "description": "A concert moment from seeing The Kid LAROI.", "status": "Added", "src": "/media/kid-laroi-concert.png", "alt": "A concert stage and crowd at The Kid LAROI concert" },
+    { "id": "media-9", "title": "Rainbow Six Siege Champion rank", "type": "Gaming", "description": "My Rainbow Six Siege Champion rank screenshot.", "status": "Added", "src": "/media/r6-champion-rank.png", "alt": "Rainbow Six Siege profile showing Champion rank and 4508 rank points", "linkUrl": "https://r6.tracker.network/r6siege/profile/ubi/RHIZ_LAROI_FAN/overview" }
   ],
   "future": {
     "heading": "My boxing future",
     "intro": "My short-term focus is getting good grades and continuing to practice boxing. In the long term, I want to become a professional boxer.",
     "goals": [
       { "title": "Good grades and boxing practice", "copy": "My short-term goal is to get good grades while continuing to practice boxing and improve every day." },
-      { "title": "Become a professional boxer", "copy": "My long-term goal is to become a professional boxer and keep working toward that dream through discipline and training." }
+      { "title": "Become a professional boxer", "copy": "My long-term goal is to become a professional boxer and keep working toward that dream through discipline and training." },
+      { "title": "Dream car", "copy": "My dream car is this red supercar. I like its bold design, speed, and racing style.", "image": "/media/dream-car.jpg", "imageAlt": "A red Ferrari-style supercar parked on grass" }
     ],
     "verse": {
       "text": "Watch ye, stand fast in the faith, quit you like men, be strong.",
@@ -67,7 +73,6 @@
         { "title": "My boxing clip", "copy": "This clip captures one of the boxing moments I wanted to share on my Choice #2 page." }
       ],
       "videos": [
-        { "src": "/media/boxing-clip-01.mp4", "title": "Boxing clip 01" },
         { "src": "/media/boxing-clip-02.mp4", "title": "Boxing clip 02" },
         { "src": "/media/boxing-clip-03.mp4", "title": "Boxing clip 03" }
       ]
