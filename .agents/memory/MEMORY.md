@@ -1,0 +1,2 @@
+- [GitHub sync](github-sync.md) — compare the actual remote tree; the local tracking ref can lag GitHub, and integration-based pushes work when HTTPS Git auth fails.
+- [SPA screenshot anchors](spa-screenshot-anchors.md) — fragment screenshots can stay at the top if the client-rendered target mounts after initial navigation.

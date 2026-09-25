@@ -2,6 +2,7 @@ import express from "express";
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
+import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createServer as createViteServer } from "vite";
 
@@ -12,6 +13,55 @@ const messagesFile = path.join(dataDir, "messages.json");
 const contentFile = path.join(dataDir, "content.json");
 const port = Number(process.env.PORT || 5000);
 const adminPassword = process.env.ADMIN_PASSWORD || "change-me-before-publishing";
+
+function runBoxingCommand(payload) {
+  return new Promise((resolve, reject) => {
+    const child = spawn("python3", [path.join(rootDir, "boxing", "engine.py")], {
+      cwd: rootDir,
+      stdio: ["pipe", "pipe", "pipe"]
+    });
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+    const timeout = setTimeout(() => {
+      child.kill("SIGKILL");
+      finish(new Error("The boxing engine timed out."));
+    }, 5000);
+
+    function finish(error, value) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      if (error) reject(error);
+      else resolve(value);
+    }
+
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk;
+      if (stdout.length > 250_000) {
+        child.kill("SIGKILL");
+        finish(new Error("The boxing engine returned too much data."));
+      }
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk;
+    });
+    child.on("error", finish);
+    child.on("close", (code) => {
+      if (settled) return;
+      if (code !== 0) {
+        return finish(new Error(stderr.trim() || `The boxing engine exited with code ${code}.`));
+      }
+      try {
+        const line = stdout.trim().split(/\r?\n/).at(-1);
+        finish(null, JSON.parse(line));
+      } catch {
+        finish(new Error("The boxing engine returned an invalid response."));
+      }
+    });
+    child.stdin.end(`${JSON.stringify(payload)}\n`);
+  });
+}
 
 async function readJson(file, fallback) {
   try {
@@ -40,6 +90,16 @@ app.get("/api/content", async (_req, res) => {
 app.get("/api/media", async (_req, res) => {
   const content = await readJson(contentFile, {});
   res.json(content.media || []);
+});
+
+app.post("/api/boxing", async (req, res) => {
+  try {
+    const result = await runBoxingCommand(req.body || {});
+    res.status(result.ok ? 200 : 400).json(result);
+  } catch (error) {
+    console.error("Boxing engine error:", error);
+    res.status(503).json({ ok: false, error: "The bout desk is temporarily unavailable." });
+  }
 });
 
 app.post("/api/messages", async (req, res) => {
